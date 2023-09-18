@@ -5,32 +5,30 @@
 
 namespace pair {
 
-    auto Pair(int32_t fst, int32_t snd) {
-        auto dispatcher = [=](const std::size_t &idx) {
-            assert(idx < 2);
-            if (idx == 0) return fst;
-            return snd;
+    template<typename U, typename V>
+    auto Pair(U fst, V snd) {
+        return [=](const auto& outer_dispatcher) {
+            return outer_dispatcher(fst, snd);
         };
-        return dispatcher;
     }
 
-    template<typename Pair>
-    int32_t Fst(Pair p) {
-        return p(0);
+    template<typename U, typename Pair>
+    U Fst(const Pair &p) {
+        return p([](const auto &fst, const auto &snd) { return fst; });
     }
 
-    template<typename Pair>
-    int32_t Snd(Pair p) {
-        return p(1);
+    template<typename V, typename Pair>
+    V Snd(const Pair &p) {
+        return p([](const auto &fst, const auto &snd) { return snd; });
     }
 
-    template<typename F>
-    auto Curry(F f, int32_t fst, int32_t snd) {
+    template<typename U, typename V, typename F>
+    auto Curry(F f, U fst, V snd) {
         return f(Pair(fst, snd));
     }
 
-    template<typename F, typename Pair>
+    template<typename U, typename V, typename Pair, typename F>
     auto Uncurry(F f, Pair pair) {
-        return f(Fst(pair), Snd(pair));
+        return f(Fst<U>(pair), Snd<V>(pair));
     }
 }
